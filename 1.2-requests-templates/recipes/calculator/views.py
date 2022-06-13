@@ -29,37 +29,37 @@ DATA = {
 #     'ингредиент2': количество2,
 #   }
 # }
-def omlet_view(request, servings):
-    servings = int(request.GET.get('servings', 1))
-    context = {
-        'recipe': {
-            'яйца, шт': 2*servings,
-            'молоко, л': 0.1*servings,
-            'соль, ч.л.': 0.5*servings,
-        }
-    }
-    return render(request, 'calculator/index.html', context)
-    
 
-def pasta_view(request, servings):
-    servings = int(request.GET.get('servings', 1))
-    context = {
-        'recipe': {
-            'макароны, г': 0.3*servings,
-            'сыр, г': 0.05*servings,
-        }
-    }
-    return render(request, 'calculator/index.html', context)
+def calculate_recipe_view(request, recipe_name):
+
+    if recipe_name in DATA:
+        data = DATA[recipe_name]
+        servings = request.GET.get('servings', None)
+
+        if servings:
+            result = dict()
+            for item, value in data.items():
+                new_value = value * int(servings)
+                result[item] = new_value
+            context = {
+                'recipe_name': recipe_name,
+                'recipe': result
+            }
+        else:
+            context = {
+                'recipe_name': recipe_name,
+                'recipe': data
+            }
+
+    else:
+        context = None
+
+    return render(request, template_name='calculator/index.html', context=context)
 
 
-def buter_view(request, servings):
-    servings = int(request.GET.get('servings', 1))
-    context = {
-        'recipe': {
-            'хлеб, ломтик': 1*servings,
-            'колбаса, ломтик': 1*servings,
-            'сыр, ломтик': 1*servings,
-            'помидор, ломтик': 1*servings,
-        }
-    }
-    return render(request, 'calculator/index.html', context)
+def recipes_view(request):
+
+    all_recipes = list(DATA.keys())
+    context = {'all_recipes': all_recipes}
+
+    return render(request, template_name='home/home.html', context=context)
